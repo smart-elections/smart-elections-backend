@@ -16,9 +16,18 @@ app.use(cors);
 app.use(helmet());
 app.enable('trust proxy');
 
+
+// ROUTES
+const citizenRoutes = require('./routes/citizens.routes');
+const accountsRoutes = require('./routes/accounts.routes');
+
+app.use('/citizens', citizenRoutes);
+app.use('/accounts', accountsRoutes)
+
 app.get("/", function (req, res) {
     res.send("Hello World!")
 })
+
 app.listen(8000, function () {
     console.log("Started application on port %d", 8000)
 });
