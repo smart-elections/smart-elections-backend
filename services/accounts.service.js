@@ -10,7 +10,7 @@ const login = (req, res) => {
         res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
     }
     else {
-        db.query("SELECT * FROM accounts WHERE citizen_ssn = ?", ssn, (err, rows) => {
+        db.query("SELECT * FROM accounts WHERE citizen_ssn = ?;", ssn, (err, rows) => {
             if (err) {
                 res.status(statusCodes.queryError).json({ error: err });
             }
@@ -50,7 +50,65 @@ const login = (req, res) => {
  * then the user chooses his/her username, password and metmask address
  */
 
+const signup = (req, res) => {
+    let { ssn } = req.body
+    let { firstName } = req.body
+    let { lastName } = req.body
+    let { username } = req.body
+    let { password } = req.body
+
+    if (!ssn || !firstName || !lastName || !password || !username) {
+        res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
+    }
+    else {
+        db.query('SELECT * FROM accounts WHERE citizen_ssn = ?;', ssn, (err, rows) => {
+            if (err)
+                res.status(statusCodes.queryError).json({ error: err });
+            else {
+                if (rows[0]) {
+                    if (rows[0].isActive === 1) {
+                        res.status(statusCodes.fieldAlreadyExists).json({ message: "Account is already active" });
+                    }
+                    else {
+                        db.query(`SELECT citizen_firstname, citizen_lastname from accounts INNER JOIN 
+                    citizens ON accounts.citizen_ssn = citizens.citizen_ssn WHERE accounts.citizen_ssn = ?;`, ssn, (err, rows) => {
+                            if (err)
+                                res.status(statusCodes.queryError).json({ error: err })
+                            else {
+                                if (rows[0]) {
+                                    if (firstName === rows[0].citizen_firstname && lastName === rows[0].citizen_lastname) {
+                                        db.query(`UPDATE accounts SET username = ?, password = ?, isActive = 1 WHERE citizen_ssn = ?;`,
+                                            [username, password, ssn], (err, rows) => {
+                                                if (err)
+                                                    res.status(statusCodes.queryError).json({ error: err });
+                                                else {
+                                                    res.status(statusCodes.success).json({ message: "Account added successfully" });
+                                                }
+                                            })
+                                    }
+                                    else {
+                                        res.status(statusCodes.notFound).json({ message: "Information associated with SSN is incorrect" });
+                                    }
+                                }
+                                else {
+                                    res.status(statusCodes.notFound).json({ message: "SSN does not exist in citizens table, internal error" });
+                                }
+
+                            }
+                        })
+                    }
+                }
+                else {
+                    res.status(statusCodes.notFound).json({ message: "SSN is incorrect" });
+                }
+            }
+        })
+    }
+}
+
 
 module.exports = {
-    login
+    login,
+    signup,
+    addWallet
 }
