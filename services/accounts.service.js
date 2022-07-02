@@ -106,6 +106,33 @@ const signup = (req, res) => {
     }
 }
 
+const addWallet = (req, res) => {
+    let { wallet_address } = req.body
+    let { ssn } = req.body
+
+    if (!ssn || !wallet_address) {
+        res.status(statusCodes.missingParameters).json({ message: 'Missing parameters' });
+    }
+    else {
+        db.query('SELECT * from accounts WHERE citizen_ssn = ?;', ssn, (err, rows) => {
+            if (err)
+                res.status(statusCodes.queryError).json({ error: err });
+            else {
+                if (rows[0]) {
+                    db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet_address, ssn], (err, rows) => {
+                        if (err)
+                            res.status(statusCodes.queryError).json({ error: err });
+                        else
+                            res.status(statusCodes.success).json({ message: "metamask address added" });
+                    })
+                }
+                else {
+                    res.status(statusCodes.notFound).json({ message: "Account does not exist" });
+                }
+            }
+        })
+    }
+}
 
 module.exports = {
     login,
