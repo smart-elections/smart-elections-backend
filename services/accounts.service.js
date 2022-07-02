@@ -119,11 +119,22 @@ const addWallet = (req, res) => {
                 res.status(statusCodes.queryError).json({ error: err });
             else {
                 if (rows[0]) {
-                    db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet_address, ssn], (err, rows) => {
+                    db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ?;', wallet_address, (err, rows) => {
                         if (err)
                             res.status(statusCodes.queryError).json({ error: err });
-                        else
-                            res.status(statusCodes.success).json({ message: "metamask address added" });
+                        else {
+                            if (rows[0]) {
+                                res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
+                            }
+                            else {
+                                db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet_address, ssn], (err, rows) => {
+                                    if (err)
+                                        res.status(statusCodes.queryError).json({ error: err });
+                                    else
+                                        res.status(statusCodes.success).json({ message: "metamask address added" });
+                                })
+                            }
+                        }
                     })
                 }
                 else {
