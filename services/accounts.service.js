@@ -1,5 +1,7 @@
+const e = require('express');
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
+const { accountsUpdateCheck } = require('../utils/helpers/utils');
 
 
 const login = (req, res) => {
@@ -145,8 +147,62 @@ const addWallet = (req, res) => {
     }
 }
 
+
+const updateAccount = (req, res) => {
+    let { username } = req.body
+    let { password } = req.body
+    let { wallet } = req.body
+
+    let error = false
+
+    if (!username && !password && !wallet) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
+
+    else {
+        if (username) {
+            db.query('SELECT username FROM accounts WHERE username = ? and citizen_ssn <> ?;', [username,
+                req.body.citizen_ssn],
+                (err, rows) => {
+                    if (err) res.status(statusCodes.queryError).json({ error: err });
+
+                    else {
+                        if (rows[0]) {
+                            res.status(statusCodes.fieldAlreadyExists).json({ message: "Username already taken" });
+                            error = true
+                        }
+                    }
+                });
+        }
+        if (!error && wallet) {
+            db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ? and citizen_ssn <> ?;', [wallet,
+                req.body.citizen_ssn],
+                (err, rows) => {
+                    if (err) res.status(statusCodes.queryError).json({ error: err });
+
+                    else {
+                        if (rows[0]) {
+                            res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
+                            error = true
+                        }
+                    }
+                });
+        }
+
+        if (!error) {
+            const { sql, params } = accountsUpdateCheck(req.body)
+
+            db.query(sql, [params, req.body.citizen_ssn,
+                req.body.citizen_nationality], (err, rows) => {
+                    if (err) res.status(statusCodes.queryError).json({ error: err });
+
+                    else res.status(statusCodes.success).json({ message: "Account updated" });
+                });
+        }
+    }
+}
+
 module.exports = {
     login,
     signup,
-    addWallet
+    addWallet,
+    updateAccount
 }
