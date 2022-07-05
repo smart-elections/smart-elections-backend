@@ -109,10 +109,10 @@ const signup = (req, res) => {
 }
 
 const addWallet = (req, res) => {
-    let { wallet_address } = req.body
+    let { wallet } = req.body
     let { ssn } = req.body
 
-    if (!ssn || !wallet_address) {
+    if (!ssn || !wallet) {
         res.status(statusCodes.missingParameters).json({ message: 'Missing parameters' });
     }
     else {
@@ -121,7 +121,7 @@ const addWallet = (req, res) => {
                 res.status(statusCodes.queryError).json({ error: err });
             else {
                 if (rows[0]) {
-                    db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ?;', wallet_address, (err, rows) => {
+                    db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ?;', wallet, (err, rows) => {
                         if (err)
                             res.status(statusCodes.queryError).json({ error: err });
                         else {
@@ -129,7 +129,7 @@ const addWallet = (req, res) => {
                                 res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
                             }
                             else {
-                                db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet_address, ssn], (err, rows) => {
+                                db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet, ssn], (err, rows) => {
                                     if (err)
                                         res.status(statusCodes.queryError).json({ error: err });
                                     else
@@ -153,50 +153,43 @@ const updateAccount = (req, res) => {
     let { password } = req.body
     let { wallet } = req.body
 
-    let error = false
-
     if (!username && !password && !wallet) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
 
     else {
-        if (username) {
-            db.query('SELECT username FROM accounts WHERE username = ? and citizen_ssn <> ?;', [username,
-                req.body.citizen_ssn],
-                (err, rows) => {
-                    if (err) res.status(statusCodes.queryError).json({ error: err });
+        db.query('SELECT username FROM accounts WHERE username = ? and citizen_ssn <> ?;', [username,
+            req.body.citizen_ssn],
+            (err, rows) => {
+                if (err) return res.status(statusCodes.queryError).json({ error: err });
 
-                    else {
-                        if (rows[0]) {
-                            res.status(statusCodes.fieldAlreadyExists).json({ message: "Username already taken" });
-                            error = true
-                        }
+                else {
+                    if (rows[0]) {
+                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Username already taken" });
                     }
-                });
-        }
-        if (!error && wallet) {
-            db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ? and citizen_ssn <> ?;', [wallet,
-                req.body.citizen_ssn],
-                (err, rows) => {
-                    if (err) res.status(statusCodes.queryError).json({ error: err });
-
                     else {
-                        if (rows[0]) {
-                            res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
-                            error = true
-                        }
+                        db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ? and citizen_ssn <> ?;', [wallet,
+                            req.body.citizen_ssn],
+                            (err, rows) => {
+                                if (err) return res.status(statusCodes.queryError).json({ error: err });
+
+                                else {
+                                    if (rows[0]) {
+                                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
+                                    }
+                                    else {
+                                        const { sql, params } = accountsUpdateCheck(req.body)
+
+                                        db.query(sql, [params, req.body.citizen_ssn,
+                                            req.body.citizen_nationality], (err, rows) => {
+                                                if (err) res.status(statusCodes.queryError).json({ error: err });
+
+                                                else res.status(statusCodes.success).json({ message: "Account updated" });
+                                            });
+                                    }
+                                }
+                            });
                     }
-                });
-        }
-
-        if (!error) {
-            const { sql, params } = accountsUpdateCheck(req.body)
-
-            db.query(sql, [params, req.body.citizen_ssn,
-                req.body.citizen_nationality], (err, rows) => {
-                    if (err) res.status(statusCodes.queryError).json({ error: err });
-
-                    else res.status(statusCodes.success).json({ message: "Account updated" });
-                });
-        }
+                }
+            });
     }
 }
 
