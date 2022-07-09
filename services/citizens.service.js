@@ -2,7 +2,7 @@ const db = require("../database");
 const statusCodes = require("../utils/constants/statusCodes");
 
 const getCitizens = (req, res) => {
-    let ssn = req.query.ssn
+    let { ssn } = req.query
 
     if (ssn)
         db.query('SELECT * FROM citizens WHERE citizen_ssn = ?;', ssn,
@@ -19,7 +19,6 @@ const getCitizens = (req, res) => {
 }
 
 const addCitizen = (req, res) => {
-
     let body = req.body
 
     if (!body.citizen_ssn || !body.citizen_nationality || !body.citizen_firstname || !body.citizen_lastname)

@@ -4,8 +4,7 @@ const { accountsUpdateCheck } = require('../utils/helpers/utils');
 
 
 const login = (req, res) => {
-    let { ssn } = req.body
-    let { password } = req.body
+    let { ssn, password } = req.body
 
     if (!ssn || !password) {
         res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
@@ -52,11 +51,7 @@ const login = (req, res) => {
  */
 
 const signup = (req, res) => {
-    let { ssn } = req.body
-    let { firstName } = req.body
-    let { lastName } = req.body
-    let { username } = req.body
-    let { password } = req.body
+    let { ssn, firstName, lastName, username, password } = req.body
 
     if (!ssn || !firstName || !lastName || !password || !username) {
         res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
@@ -108,8 +103,7 @@ const signup = (req, res) => {
 }
 
 const addWallet = (req, res) => {
-    let { wallet } = req.body
-    let { ssn } = req.body
+    let { wallet, ssn } = req.body
 
     if (!ssn || !wallet) {
         res.status(statusCodes.missingParameters).json({ message: 'Missing parameters' });
@@ -148,11 +142,8 @@ const addWallet = (req, res) => {
 
 
 const updateAccount = (req, res) => {
-    let { username } = req.body
-    let { password } = req.body
-    let { wallet } = req.body
-    let ssn = req.query.ssn
-    let nationality = req.query.nationality
+    let { username, password, wallet } = req.body
+    let { ssn, nationality } = req.query
 
     if (!username && !password && !wallet) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
 

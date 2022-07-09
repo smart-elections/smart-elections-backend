@@ -3,7 +3,7 @@ const statusCodes = require('../utils/constants/statusCodes');
 
 
 const getCandidates = (req, res) => {
-    let id = req.query.id
+    let { id } = req.query
 
     if (id) {
         db.query('SELECT * FROM candidates wHERE candidate_id = ?;', id,
@@ -68,7 +68,7 @@ const addCandidate = (req, res) => {
 
 const updateCandidate = (req, res) => {
     let body = req.body
-    let id = req.query.id
+    let { id } = req.query
 
     db.query(`UPDATE candidates SET ? WHERE candidate_id = ?;`, [body, id],
         (err, rows) => {

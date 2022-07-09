@@ -26,7 +26,7 @@ const electionRoutes = require('./routes/elections.routes');
 app.use('/citizens', citizenRoutes);
 app.use('/accounts', accountsRoutes);
 app.use('/candidates', candidatesRoutes);
-// app.use('/elections', electionRoutes);
+app.use('/elections', electionRoutes);
 
 app.get("/", function (req, res) {
     res.send("Hello World!")
