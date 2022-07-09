@@ -11,7 +11,7 @@ const getCitizens = (req, res) => {
                 else res.status(statusCodes.success).json({ data: rows });
             });
     else
-        db.query('SELECT * FROM citizens',
+        db.query('SELECT * FROM citizens;',
             (err, rows) => {
                 if (err) res.status(statusCodes.queryError).json({ error: err });
                 else res.status(statusCodes.success).json({ data: rows });

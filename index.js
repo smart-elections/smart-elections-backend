@@ -20,9 +20,11 @@ app.enable('trust proxy');
 // ROUTES
 const citizenRoutes = require('./routes/citizens.routes');
 const accountsRoutes = require('./routes/accounts.routes');
+const candidatesRoutes = require('./routes/candidates.routes');
 
 app.use('/citizens', citizenRoutes);
-app.use('/accounts', accountsRoutes)
+app.use('/accounts', accountsRoutes);
+app.use('/candidates', candidatesRoutes);
 
 app.get("/", function (req, res) {
     res.send("Hello World!")
