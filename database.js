@@ -5,7 +5,8 @@ const config = {
     user: `${process.env.DATABASE_USER_KEY}`,
     password: `${process.env.DATABASE_PASS_KEY}`,
     database: `${process.env.DATABASE_NAME_KEY}`,
-    port: 3306
+    port: 3306,
+    timezone: 'UTC'
 };
 
 let mysqlConnection
