@@ -1,4 +1,4 @@
-const accountsUpdateCheck = (req) => {
+const checkAccountsUpdate = (req) => {
     let sql = "UPDATE accounts SET ? WHERE citizen_ssn = ? and citizen_nationality = ?;"
     let params = {}
 
@@ -17,7 +17,7 @@ const accountsUpdateCheck = (req) => {
     return { sql, params }
 }
 
-const electionsFetchingCheck = (req) => {
+const checkElectionsFetching = (req) => {
     let sql = `SELECT election_id, election_year, election_type, election_round, election_start,
     election_end FROM elections `
     let params = []
@@ -45,7 +45,7 @@ const electionsFetchingCheck = (req) => {
     return { sql, params }
 }
 
-const votesFetchingCheck = (req) => {
+const checkVotesFetching = (req) => {
     let sql = `SELECT * FROM votes `
     let params = []
 
@@ -80,8 +80,50 @@ const votesFetchingCheck = (req) => {
     return { sql, params }
 }
 
+const checkCitizenInVote = (req) => {
+    let sql = `SELECT citizen_ssn FROM citizens WHERE TRUE`
+    let params = []
+
+    if (req.citizen_ssn !== undefined) {
+        sql += ` AND citizen_ssn = ?`
+        params.push(req.citizen_ssn);
+    }
+    if (req.citizen_nationality !== undefined) {
+        sql += ` AND citizen_nationality = ?`
+        params.push(req.citizen_nationality);
+    }
+
+    sql += ';'
+
+    return { sql, params }
+}
+
+const checkElectionInVote = (req) => {
+    let sql = `SELECT election_id FROM elections WHERE TRUE`
+    let params = []
+
+    if (req.election_year !== undefined) {
+        sql += ` AND election_year = ?`
+        params.push(req.election_year);
+    }
+    if (req.election_type !== undefined) {
+        sql += ` AND election_type = ?`
+        params.push(req.election_type);
+    }
+    if (req.election_round !== undefined) {
+        sql += ` AND election_round = ?`
+        params.push(req.election_round);
+    }
+
+    sql += ';'
+
+    return { sql, params }
+}
+
 module.exports = {
-    accountsUpdateCheck,
-    electionsFetchingCheck,
-    votesFetchingCheck
+    checkAccountsUpdate,
+    checkElectionsFetching,
+    checkVotesFetching,
+    checkCitizenInVote,
+    checkElectionInVote
 }
