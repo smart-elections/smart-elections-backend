@@ -4,5 +4,6 @@ const router = express.Router();
 const votes = require('../services/votes.service');
 
 router.get('/', votes.getVotes);
+router.post('/add/vote', votes.addVotes);
 
 module.exports = router
