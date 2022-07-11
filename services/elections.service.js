@@ -28,7 +28,7 @@ const addElection = (req, res) => {
                 if (err) res.status(statusCodes.queryError).json({ error: err });
                 else {
                     if (rows[0]) {
-                        res.status(statusCodes.fieldAlreadyExists).json({ message: 'This election already exists' });
+                        res.status(statusCodes.fieldAlreadyExists).json({ message: 'Election already exists' });
                     }
                     else {
                         db.query(`INSERT INTO elections SET ?`, body,
