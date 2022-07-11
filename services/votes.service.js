@@ -1,4 +1,3 @@
-const e = require('express');
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
 const { votesFetchingCheck } = require('../utils/helpers/utils');
