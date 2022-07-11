@@ -45,7 +45,43 @@ const electionsFetchingCheck = (req) => {
     return { sql, params }
 }
 
+const votesFetchingCheck = (req) => {
+    let sql = `SELECT * FROM votes `
+    let params = []
+
+
+    if (req.year || req.round || req.type || req.ssn || req.nationality) {
+        sql += 'WHERE TRUE'
+
+        if (req.year !== undefined) {
+            sql += ` AND election_year = ?`
+            params.push(req.year);
+        }
+        if (req.round !== undefined) {
+            sql += ` AND election_round = ?`
+            params.push(req.round);
+        }
+        if (req.type !== undefined) {
+            sql += ` AND election_type = ?`
+            params.push(req.type);
+        }
+        if (req.ssn !== undefined) {
+            sql += ` AND citizen_ssn = ?`
+            params.push(req.ssn);
+        }
+        if (req.nationality !== undefined) {
+            sql += ` AND citizen_nationality = ?`
+            params.push(req.nationality);
+        }
+    }
+
+    sql += ';'
+
+    return { sql, params }
+}
+
 module.exports = {
     accountsUpdateCheck,
-    electionsFetchingCheck
+    electionsFetchingCheck,
+    votesFetchingCheck
 }
