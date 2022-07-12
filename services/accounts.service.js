@@ -1,6 +1,6 @@
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
-const { accountsUpdateCheck } = require('../utils/helpers/utils');
+const { checkAccountsUpdate } = require('../utils/helpers/utils');
 
 
 const login = (req, res) => {
@@ -167,7 +167,7 @@ const updateAccount = (req, res) => {
                                         return res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
                                     }
                                     else {
-                                        const { sql, params } = accountsUpdateCheck(req.body)
+                                        const { sql, params } = checkAccountsUpdate(req.body)
 
                                         db.query(sql, [params, ssn, nationality], (err, rows) => {
                                             if (err) res.status(statusCodes.queryError).json({ error: err });
