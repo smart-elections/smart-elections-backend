@@ -1,11 +1,11 @@
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
-const { electionsFetchingCheck } = require('../utils/helpers/utils');
+const { checkElectionsFetching } = require('../utils/helpers/utils');
 
 
 const getElections = (req, res) => {
 
-    let { sql, params } = electionsFetchingCheck(req.query);
+    let { sql, params } = checkElectionsFetching(req.query);
 
     db.query(sql, params, (err, rows) => {
         if (err) res.status(statusCodes.queryError).json({ error: err });
