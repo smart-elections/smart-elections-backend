@@ -4,13 +4,13 @@ const { checkAccountsUpdate } = require('../utils/helpers/utils');
 
 
 const login = (req, res) => {
-    let { ssn, password } = req.body
+    let { citizen_ssn, password } = req.body
 
-    if (!ssn || !password) {
+    if (!citizen_ssn || !password) {
         res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
     }
     else {
-        db.query("SELECT * FROM accounts WHERE citizen_ssn = ?;", ssn, (err, rows) => {
+        db.query("SELECT * FROM accounts WHERE citizen_ssn = ?;", citizen_ssn, (err, rows) => {
             if (err) {
                 res.status(statusCodes.queryError).json({ error: err });
             }
