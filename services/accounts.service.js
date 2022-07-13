@@ -103,18 +103,18 @@ const signup = (req, res) => {
 }
 
 const addWallet = (req, res) => {
-    let { wallet, ssn } = req.body
+    let { wallet_address, citizen_ssn } = req.body
 
-    if (!ssn || !wallet) {
+    if (!citizen_ssn || !wallet_address) {
         res.status(statusCodes.missingParameters).json({ message: 'Missing parameters' });
     }
     else {
-        db.query('SELECT * from accounts WHERE citizen_ssn = ?;', ssn, (err, rows) => {
+        db.query('SELECT * from accounts WHERE citizen_ssn = ?;', citizen_ssn, (err, rows) => {
             if (err)
                 res.status(statusCodes.queryError).json({ error: err });
             else {
                 if (rows[0]) {
-                    db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ?;', wallet, (err, rows) => {
+                    db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ?;', wallet_address, (err, rows) => {
                         if (err)
                             res.status(statusCodes.queryError).json({ error: err });
                         else {
@@ -122,11 +122,11 @@ const addWallet = (req, res) => {
                                 res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
                             }
                             else {
-                                db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet, ssn], (err, rows) => {
+                                db.query('UPDATE accounts SET wallet_address = ? WHERE citizen_ssn = ?;', [wallet_address, citizen_ssn], (err, rows) => {
                                     if (err)
                                         res.status(statusCodes.queryError).json({ error: err });
                                     else
-                                        res.status(statusCodes.success).json({ message: "metamask address added" });
+                                        res.status(statusCodes.success).json({ message: "Metamask address added" });
                                 })
                             }
                         }
