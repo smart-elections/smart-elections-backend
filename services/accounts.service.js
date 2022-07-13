@@ -51,13 +51,13 @@ const login = (req, res) => {
  */
 
 const signup = (req, res) => {
-    let { ssn, firstName, lastName, username, password } = req.body
+    let { citizen_ssn, citizen_firstname, citizen_lastname, username, password } = req.body
 
-    if (!ssn || !firstName || !lastName || !password || !username) {
+    if (!citizen_ssn || !citizen_firstname || !citizen_lastname || !password || !username) {
         res.status(statusCodes.missingParameters).json({ message: "Missing Parameters" });
     }
     else {
-        db.query('SELECT * FROM accounts WHERE citizen_ssn = ?;', ssn, (err, rows) => {
+        db.query('SELECT * FROM accounts WHERE citizen_ssn = ?;', citizen_ssn, (err, rows) => {
             if (err)
                 res.status(statusCodes.queryError).json({ error: err });
             else {
@@ -67,14 +67,14 @@ const signup = (req, res) => {
                     }
                     else {
                         db.query(`SELECT citizen_firstname, citizen_lastname from accounts INNER JOIN 
-                    citizens ON accounts.citizen_ssn = citizens.citizen_ssn WHERE accounts.citizen_ssn = ?;`, ssn, (err, rows) => {
+                    citizens ON accounts.citizen_ssn = citizens.citizen_ssn WHERE accounts.citizen_ssn = ?;`, citizen_ssn, (err, rows) => {
                             if (err)
                                 res.status(statusCodes.queryError).json({ error: err })
                             else {
                                 if (rows[0]) {
-                                    if (firstName === rows[0].citizen_firstname && lastName === rows[0].citizen_lastname) {
+                                    if (citizen_firstname === rows[0].citizen_firstname && citizen_lastname === rows[0].citizen_lastname) {
                                         db.query(`UPDATE accounts SET username = ?, password = ?, isActive = 1 WHERE citizen_ssn = ?;`,
-                                            [username, password, ssn], (err, rows) => {
+                                            [username, password, citizen_ssn], (err, rows) => {
                                                 if (err)
                                                     res.status(statusCodes.queryError).json({ error: err });
                                                 else {
