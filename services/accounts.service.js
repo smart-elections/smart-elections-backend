@@ -142,44 +142,54 @@ const addWallet = (req, res) => {
 
 
 const updateAccount = (req, res) => {
-    let { username, password, wallet } = req.body
+    let { username, password, wallet_address } = req.body
     let { ssn, nationality } = req.query
 
-    if (!username && !password && !wallet) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
+    if (!username && !password && !wallet_address) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
 
     else {
-        db.query('SELECT username FROM accounts WHERE username = ? and (citizen_ssn <> ? and citizen_nationality <> ?);',
-            [username, ssn, nationality],
+        db.query(`SELECT citizen_id FROM citizens WHERE citizen_ssn = ?;`, ssn,
             (err, rows) => {
-                if (err) return res.status(statusCodes.queryError).json({ error: err });
-
+                if (err) res.status(statusCodes.queryError).json({ error: err });
                 else {
                     if (rows[0]) {
-                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Username already taken" });
-                    }
-                    else {
-                        db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ? and citizen_ssn <> ?;', [wallet, ssn],
+                        db.query('SELECT username FROM accounts WHERE username = ? AND citizen_ssn <> ?;',
+                            [username, ssn],
                             (err, rows) => {
                                 if (err) return res.status(statusCodes.queryError).json({ error: err });
-
                                 else {
                                     if (rows[0]) {
-                                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
+                                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Username already taken" });
                                     }
                                     else {
-                                        const { sql, params } = checkAccountsUpdate(req.body)
+                                        db.query('SELECT wallet_address FROM accounts WHERE wallet_address = ? AND citizen_ssn <> ?;', [wallet_address, ssn],
+                                            (err, rows) => {
+                                                if (err) return res.status(statusCodes.queryError).json({ error: err });
 
-                                        db.query(sql, [params, ssn, nationality], (err, rows) => {
-                                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                else {
+                                                    if (rows[0]) {
+                                                        return res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
+                                                    }
+                                                    else {
+                                                        const { sql, params } = checkAccountsUpdate(req.body)
 
-                                            else res.status(statusCodes.success).json({ message: "Account updated" });
-                                        });
+                                                        db.query(sql, [params, ssn, nationality], (err, rows) => {
+                                                            if (err) res.status(statusCodes.queryError).json({ error: err });
+
+                                                            else res.status(statusCodes.success).json({ message: "Account updated" });
+                                                        });
+                                                    }
+                                                }
+                                            });
                                     }
                                 }
                             });
                     }
+                    else {
+                        res.status(statusCodes.notFound).json({ message: "SSN does not exist" });
+                    }
                 }
-            });
+            })
     }
 }
 
