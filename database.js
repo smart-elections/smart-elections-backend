@@ -1,6 +1,7 @@
 const mysql = require("mysql");
 
 const config = {
+    connectionLimit: 10,
     host: `${process.env.DATABASE_HOST_KEY}`,
     user: `${process.env.DATABASE_USER_KEY}`,
     password: `${process.env.DATABASE_PASS_KEY}`,
@@ -12,10 +13,10 @@ const config = {
 let mysqlConnection
 
 function startConnection() {
-    mysqlConnection = mysql.createConnection(config);
-    mysqlConnection.connect((err) => {
+    mysqlConnection = mysql.createPool(config);
+    mysqlConnection.getConnection((err, connection) => {
         if (!err) {
-            console.log("Database Status: " + mysqlConnection.state);
+            console.log("Database Status: " + connection.state);
         }
         else {
             console.log(
