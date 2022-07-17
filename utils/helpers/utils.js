@@ -1,5 +1,5 @@
 const checkAccountsUpdate = (req) => {
-    let sql = "UPDATE accounts SET ? WHERE citizen_ssn = ? and citizen_nationality = ?;"
+    let sql = "UPDATE accounts SET ? WHERE citizen_ssn = ? AND citizen_nationality = ?;"
     let params = {}
 
     if (req.username) {

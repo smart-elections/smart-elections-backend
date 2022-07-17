@@ -185,13 +185,24 @@ const updateAccount = (req, res) => {
                                                         return res.status(statusCodes.fieldAlreadyExists).json({ message: "Metamask exists for another account" });
                                                     }
                                                     else {
-                                                        const { sql, params } = checkAccountsUpdate(req.body)
+                                                        db.query(`SELECT password FROM accounts WHERE (password = ? AND citizen_ssn = ?);`, [password, ssn],
+                                                            (err, rows) => {
+                                                                if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                                else {
+                                                                    if (rows[0]) {
+                                                                        res.status(statusCodes.fieldAlreadyExists).json({ message: "New password cannot be the same as old password" });
+                                                                    }
+                                                                    else {
+                                                                        const { sql, params } = checkAccountsUpdate(req.body)
 
-                                                        db.query(sql, [params, ssn, nationality], (err, rows) => {
-                                                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                                        db.query(sql, [params, ssn, nationality], (err, rows) => {
+                                                                            if (err) res.status(statusCodes.queryError).json({ error: err });
 
-                                                            else res.status(statusCodes.success).json({ message: "Account updated" });
-                                                        });
+                                                                            else res.status(statusCodes.success).json({ message: "Account updated" });
+                                                                        });
+                                                                    }
+                                                                }
+                                                            });
                                                     }
                                                 }
                                             });
@@ -205,6 +216,10 @@ const updateAccount = (req, res) => {
                 }
             })
     }
+}
+
+const updatePassword = (req, res) => {
+
 }
 
 module.exports = {
