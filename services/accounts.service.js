@@ -16,16 +16,30 @@ const login = (req, res) => {
             }
             else {
                 if (rows[0]) {
-                    if (password === rows[0].password) {
-                        res.status(statusCodes.success).json({
-                            message: "Account exists", data: {
-                                username: rows[0].username,
-                                wallet_address: rows[0].wallet_address,
-                                citizen_ssn: rows[0].citizen_ssn,
-                                citizen_nationality: rows[0].citizen_nationality,
-                                isActive: rows[0].isActive
-                            }
-                        });
+                    let citizen = rows[0]
+
+                    if (password === citizen.password) {
+                        db.query(`SELECT citizen_gender, citizen_commune FROM citizens LEFT JOIN accounts 
+                        on citizens.citizen_ssn = accounts.citizen_ssn WHERE citizens.citizen_ssn = ?;`, citizen_ssn,
+                            (err, rows) => {
+                                if (err) res.status(statusCodes.queryError).json({ error: err });
+                                else {
+                                    if (rows[0]) {
+                                        res.status(statusCodes.success).json({
+                                            message: "Account exists", data: {
+                                                username: citizen.username,
+                                                wallet_address: citizen.wallet_address,
+                                                citizen_ssn: citizen.citizen_ssn,
+                                                citizen_nationality: citizen.citizen_nationality,
+                                                citizen_gender: rows[0].citizen_gender,
+                                                citizen_commune: rows[0].citizen_commune,
+                                                isActive: citizen.isActive,
+                                            }
+                                        });
+                                    }
+                                    else res.status(statusCodes.notFound).json({ message: "Citizen does not exist, internal error" });
+                                }
+                            })
                     }
                     else {
                         res.status(statusCodes.wrongPassword).json({ message: "Wrong password" });
