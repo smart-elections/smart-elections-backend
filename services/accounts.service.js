@@ -218,10 +218,6 @@ const updateAccount = (req, res) => {
     }
 }
 
-const updatePassword = (req, res) => {
-
-}
-
 module.exports = {
     login,
     signup,
