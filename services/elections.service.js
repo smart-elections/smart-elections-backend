@@ -74,19 +74,12 @@ const editElection = (req, res) => {
 
 const getElectionCandidates = (req, res) => {
 
-    let { year, type, round } = req.query
+    let { sql, params } = checkElectionsFetching(req.query, true);
 
-    if (!year || !type || !round) {
-        res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
-    }
-    else {
-        let { sql } = checkElectionsFetching(req.query, true);
-
-        db.query(sql, [year, round, type], (err, rows) => {
-            if (err) res.status(statusCodes.queryError).json({ error: err });
-            else res.status(statusCodes.success).json({ data: rows });
-        })
-    }
+    db.query(sql, params, (err, rows) => {
+        if (err) res.status(statusCodes.queryError).json({ error: err });
+        else res.status(statusCodes.success).json({ data: rows });
+    })
 }
 
 module.exports = {

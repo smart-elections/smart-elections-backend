@@ -29,28 +29,27 @@ const checkElectionsFetching = (req, candidates) => {
         CA.citizen_nationality, CA.candidate_twitter, citizen_firstname, citizen_lastname, 
         citizen_gender, citizen_yob FROM elections AS E LEFT JOIN election_candidate AS EC
             ON E.election_year = EC.election_year AND E.election_type = EC.election_type AND E.election_round = EC.election_round
-            LEFT JOIN candidates AS CA on CA.candidate_id = EC.candidate_id LEFT JOIN citizens AS CI on CA.citizen_ssn = CI.citizen_ssn
-            WHERE E.election_year = ? AND E.election_round = ? AND E.election_type = ?`
+            LEFT JOIN candidates AS CA on CA.candidate_id = EC.candidate_id LEFT JOIN citizens AS CI on CA.citizen_ssn = CI.citizen_ssn `
     }
     else {
         sql += `SELECT election_id, election_year, election_type, election_round, election_start,
-        election_end FROM elections `
+        election_end FROM elections AS E `
+    }
 
-        if (req.year || req.round || req.type) {
-            sql += 'WHERE TRUE'
+    if (req.year || req.round || req.type) {
+        sql += 'WHERE TRUE'
 
-            if (req.year !== undefined) {
-                sql += ` AND election_year = ?`
-                params.push(req.year);
-            }
-            if (req.round !== undefined) {
-                sql += ` AND election_round = ?`
-                params.push(req.round);
-            }
-            if (req.type !== undefined) {
-                sql += ` AND election_type = ?`
-                params.push(req.type);
-            }
+        if (req.year !== undefined) {
+            sql += ` AND E.election_year = ?`
+            params.push(req.year);
+        }
+        if (req.round !== undefined) {
+            sql += ` AND E.election_round = ?`
+            params.push(req.round);
+        }
+        if (req.type !== undefined) {
+            sql += ` AND E.election_type = ?`
+            params.push(req.type);
         }
     }
 
