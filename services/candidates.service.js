@@ -6,7 +6,10 @@ const getCandidates = (req, res) => {
     let { id } = req.query
 
     if (id) {
-        db.query('SELECT * FROM candidates wHERE candidate_id = ?;', id,
+        db.query(`SELECT candidate_id, candidate_party, candidate_election_status, CA.citizen_ssn,
+        CA.citizen_nationality, candidate_twitter, citizen_firstname, citizen_lastname, 
+        citizen_gender, citizen_yob FROM candidates AS CA LEFT JOIN citizens AS CI on CA.citizen_ssn = CI.citizen_ssn 
+        wHERE candidate_id = ?;`, id,
             (err, rows) => {
                 if (err) res.status(statusCodes.queryError).json({ error: err });
                 else res.status(statusCodes.success).json({ data: rows });
