@@ -1,4 +1,3 @@
-const e = require("express");
 
 const checkAccountsUpdate = (req) => {
     let sql = "UPDATE accounts SET ? WHERE citizen_ssn = ? AND citizen_nationality = ?;"
