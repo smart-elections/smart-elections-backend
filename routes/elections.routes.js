@@ -6,5 +6,6 @@ const elections = require('../services/elections.service');
 router.get('/', elections.getElections);
 router.post('/add/election', elections.addElection);
 router.put('/edit/election', elections.editElection)
+router.get('/candidates', elections.getElectionCandidates);
 
 module.exports = router
