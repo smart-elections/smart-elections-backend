@@ -27,9 +27,9 @@ const checkElectionsFetching = (req, candidates) => {
         sql += `SELECT E.election_id, E.election_year, E.election_type, E.election_round, E.election_start,
         E.election_end, CA.candidate_id, CA.candidate_party, CA.candidate_election_status, CA.citizen_ssn,
         CA.citizen_nationality, CA.candidate_twitter, citizen_firstname, citizen_lastname, 
-        citizen_gender, citizen_yob FROM elections AS E LEFT JOIN election_candidate AS EC
+        citizen_gender, citizen_yob FROM elections AS E INNER JOIN election_candidate AS EC
             ON E.election_year = EC.election_year AND E.election_type = EC.election_type AND E.election_round = EC.election_round
-            LEFT JOIN candidates AS CA on CA.candidate_id = EC.candidate_id LEFT JOIN citizens AS CI on CA.citizen_ssn = CI.citizen_ssn `
+            INNER JOIN candidates AS CA on CA.candidate_id = EC.candidate_id INNER JOIN citizens AS CI on CA.citizen_ssn = CI.citizen_ssn `
     }
     else {
         sql += `SELECT election_id, election_year, election_type, election_round, election_start,
