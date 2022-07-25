@@ -17,7 +17,6 @@ const login = (req, res) => {
             else {
                 if (rows[0]) {
                     let citizen = rows[0]
-
                     if (password === citizen.password) {
                         db.query(`SELECT citizen_gender, citizen_commune FROM citizens LEFT JOIN accounts 
                         on citizens.citizen_ssn = accounts.citizen_ssn WHERE citizens.citizen_ssn = ?;`, citizen_ssn,

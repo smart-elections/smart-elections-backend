@@ -32,12 +32,21 @@ const addCitizen = (req, res) => {
                 if (rows[0])
                     res.status(statusCodes.fieldAlreadyExists).json({ message: "Citizen already exists" });
                 else
-                    db.query('INSERT INTO citizens SET ?;', [body], (err, rows) => {
-                        if (err)
-                            res.status(statusCodes.queryError).json({ error: err });
-                        else
-                            res.status(statusCodes.success).json({ message: "Citizen added successfully" });
-                    });
+                    db.query('INSERT INTO citizens SET ?;', [body],
+                        (err, rows) => {
+                            if (err)
+                                res.status(statusCodes.queryError).json({ error: err });
+                            else {
+                                if (rows) {
+                                    db.query(`INSERT INTO accounts (citizen_ssn, citizen_nationality, isActive) values (?,?,0);`,
+                                        [body.citizen_ssn, body.citizen_nationality],
+                                        (err, rows) => {
+                                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                                            else res.status(statusCodes.success).json({ message: "Citizen added successfully" });
+                                        })
+                                }
+                            }
+                        });
         });
 
 }
