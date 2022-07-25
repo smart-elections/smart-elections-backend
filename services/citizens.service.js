@@ -51,7 +51,33 @@ const addCitizen = (req, res) => {
 
 }
 
+const editCitizen = (req, res) => {
+    let body = req.body
+    let { ssn, nationality } = req.query
+
+    if (!ssn || !nationality) {
+        res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
+    }
+    else {
+        db.query('SELECT citizen_id FROM citizens WHERE (citizen_ssn = ? AND citizen_nationality = ?);', [ssn, nationality],
+            (err, rows) => {
+                if (err) res.status(statusCodes.queryError).json({ error: err });
+                else {
+                    if (rows[0]) {
+                        db.query('UPDATE citizens SET ? WHERE (citizen_ssn = ? AND citizen_nationality = ?);', [body, ssn, nationality],
+                            (err, rows) => {
+                                if (err) res.status(statusCodes.queryError).json({ error: err });
+                                else res.status(statusCodes.success).json({ message: "Citizen updated successfully" });
+                            })
+                    }
+                    else res.status(statusCodes.notFound).json({ message: "Citizen doesn't exist" });
+                }
+            });
+    }
+}
+
 module.exports = {
     getCitizens,
-    addCitizen
+    addCitizen,
+    editCitizen
 }
