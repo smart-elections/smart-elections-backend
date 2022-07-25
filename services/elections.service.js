@@ -72,8 +72,19 @@ const editElection = (req, res) => {
     }
 }
 
+const getElectionCandidates = (req, res) => {
+
+    let { sql, params } = checkElectionsFetching(req.query, true);
+
+    db.query(sql, params, (err, rows) => {
+        if (err) res.status(statusCodes.queryError).json({ error: err });
+        else res.status(statusCodes.success).json({ data: rows });
+    })
+}
+
 module.exports = {
     getElections,
     addElection,
-    editElection
+    editElection,
+    getElectionCandidates
 }
