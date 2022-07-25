@@ -1,7 +1,6 @@
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
 
-
 const getCandidates = (req, res) => {
     let { id } = req.query
 
