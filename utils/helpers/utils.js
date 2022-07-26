@@ -133,10 +133,41 @@ const checkElectionInVote = (req) => {
     return { sql, params }
 }
 
+const checkRegisteredVotersFetching = (req) => {
+    let sql = `SELECT * FROM registered_voters WHERE TRUE`
+    let params = []
+
+    if (req.year !== undefined) {
+        sql += ` AND election_year = ?`
+        params.push(req.year);
+    }
+    if (req.type !== undefined) {
+        sql += ` AND election_type = ?`
+        params.push(req.type);
+    }
+    if (req.round !== undefined) {
+        sql += ` AND election_round = ?`
+        params.push(req.round);
+    }
+    if (req.ssn !== undefined) {
+        sql += ` AND citizen_ssn = ?`
+        params.push(req.ssn);
+    }
+    if (req.nationality !== undefined) {
+        sql += ` AND citizen_nationality = ?`
+        params.push(req.nationality);
+    }
+
+    sql += ';'
+
+    return { sql, params }
+}
+
 module.exports = {
     checkAccountsUpdate,
     checkElectionsFetching,
     checkVotesFetching,
     checkCitizenInVote,
-    checkElectionInVote
+    checkElectionInVote,
+    checkRegisteredVotersFetching
 }
