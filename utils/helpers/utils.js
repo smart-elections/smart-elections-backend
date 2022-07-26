@@ -112,20 +112,24 @@ const checkCitizenInVote = (req) => {
 }
 
 const checkElectionInVote = (req) => {
-    let sql = `SELECT election_id FROM elections WHERE TRUE`
+    let sql = `SELECT election_id FROM elections`
     let params = []
 
-    if (req.election_year !== undefined) {
-        sql += ` AND election_year = ?`
-        params.push(req.election_year);
-    }
-    if (req.election_type !== undefined) {
-        sql += ` AND election_type = ?`
-        params.push(req.election_type);
-    }
-    if (req.election_round !== undefined) {
-        sql += ` AND election_round = ?`
-        params.push(req.election_round);
+    if (req.election_year || req.election_round || req.election_type) {
+        sql += 'WHERE TRUE'
+
+        if (req.election_year !== undefined) {
+            sql += ` AND election_year = ?`
+            params.push(req.election_year);
+        }
+        if (req.election_type !== undefined) {
+            sql += ` AND election_type = ?`
+            params.push(req.election_type);
+        }
+        if (req.election_round !== undefined) {
+            sql += ` AND election_round = ?`
+            params.push(req.election_round);
+        }
     }
 
     sql += ';'
@@ -134,32 +138,35 @@ const checkElectionInVote = (req) => {
 }
 
 const checkRegisteredVotersFetching = (req) => {
-    let sql = `SELECT * FROM registered_voters WHERE TRUE`
+    let sql = `SELECT * FROM registered_voters `
     let params = []
 
-    if (req.year !== undefined) {
-        sql += ` AND election_year = ?`
-        params.push(req.year);
-    }
-    if (req.type !== undefined) {
-        sql += ` AND election_type = ?`
-        params.push(req.type);
-    }
-    if (req.round !== undefined) {
-        sql += ` AND election_round = ?`
-        params.push(req.round);
-    }
-    if (req.ssn !== undefined) {
-        sql += ` AND citizen_ssn = ?`
-        params.push(req.ssn);
-    }
-    if (req.nationality !== undefined) {
-        sql += ` AND citizen_nationality = ?`
-        params.push(req.nationality);
+    if (req.year || req.round || req.type || req.ssn || req.nationality) {
+        sql += 'WHERE TRUE'
+
+        if (req.year !== undefined) {
+            sql += ` AND election_year = ?`
+            params.push(req.year);
+        }
+        if (req.type !== undefined) {
+            sql += ` AND election_type = ?`
+            params.push(req.type);
+        }
+        if (req.round !== undefined) {
+            sql += ` AND election_round = ?`
+            params.push(req.round);
+        }
+        if (req.ssn !== undefined) {
+            sql += ` AND citizen_ssn = ?`
+            params.push(req.ssn);
+        }
+        if (req.nationality !== undefined) {
+            sql += ` AND citizen_nationality = ?`
+            params.push(req.nationality);
+        }
     }
 
     sql += ';'
-
     return { sql, params }
 }
 
