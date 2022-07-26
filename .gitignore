@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# pem files
+smart-elections-key-login.pem
+
+# CI/CD bash script
+script.sh

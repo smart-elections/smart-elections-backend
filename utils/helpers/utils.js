@@ -147,7 +147,7 @@ const checkRegisteredVotersFetching = (req, analytics) => {
     let sql = ``
 
     if (analytics) {
-        sql += `SELECT Count(*) AS registered_voters FROM registered_voters `
+        sql += `SELECT Count(*) AS registered_voters, election_year, election_round, election_type FROM registered_voters `
     }
     else {
         sql += `SELECT * FROM registered_voters `
@@ -180,7 +180,7 @@ const checkRegisteredVotersFetching = (req, analytics) => {
         }
     }
 
-    sql += ';'
+    sql += ' GROUP BY election_year, election_round, election_type;'
     return { sql, params }
 }
 
