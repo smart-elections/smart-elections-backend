@@ -35,7 +35,7 @@ const getNbrOfRegisteredVoters = (req, res) => {
                                 (err, rows) => {
                                     if (err) res.status(statusCodes.queryError).json({ error: err });
                                     else {
-                                        let changePercentage = currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100
+                                        let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
 
                                         res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
                                     }
