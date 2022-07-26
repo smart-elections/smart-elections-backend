@@ -58,10 +58,16 @@ const checkElectionsFetching = (req, candidates) => {
     return { sql, params }
 }
 
-const checkVotesFetching = (req) => {
-    let sql = `SELECT * FROM votes `
+const checkVotesFetching = (req, analytics) => {
+    let sql = ``
     let params = []
 
+    if (analytics) {
+        sql += `SELECT Count(*) AS nbr_of_voters FROM votes `
+    }
+    else {
+        sql += `SELECT * FROM votes `
+    }
 
     if (req.year || req.round || req.type || req.ssn || req.nationality) {
         sql += 'WHERE TRUE'
@@ -137,8 +143,16 @@ const checkElectionInVote = (req) => {
     return { sql, params }
 }
 
-const checkRegisteredVotersFetching = (req) => {
-    let sql = `SELECT * FROM registered_voters `
+const checkRegisteredVotersFetching = (req, analytics) => {
+    let sql = ``
+
+    if (analytics) {
+        sql += `SELECT Count(*) AS registered_voters FROM registered_voters `
+    }
+    else {
+        sql += `SELECT * FROM registered_voters `
+    }
+
     let params = []
 
     if (req.year || req.round || req.type || req.ssn || req.nationality) {
