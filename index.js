@@ -24,6 +24,7 @@ const candidatesRoutes = require('./routes/candidates.routes');
 const electionsRoutes = require('./routes/elections.routes');
 const votesRoutes = require('./routes/votes.routes');
 const registeredVotersRoutes = require('./routes/registered-voters.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
 
 app.use('/citizens', citizensRoutes);
 app.use('/accounts', accountsRoutes);
@@ -31,6 +32,7 @@ app.use('/candidates', candidatesRoutes);
 app.use('/elections', electionsRoutes);
 app.use('/votes', votesRoutes);
 app.use('/voters', registeredVotersRoutes);
+app.use('/analytics', analyticsRoutes);
 
 app.get("/", function (req, res) {
     res.send("Hello World!")
