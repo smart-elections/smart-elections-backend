@@ -111,7 +111,7 @@ const updateCandidate = (req, res) => {
 }
 
 const uploadCandidateImage = (req, res) => {
-    var sql = "UPDATE candidate SET candidate_image = ? WHERE candidate_id = ?;";
+    var sql = "UPDATE candidates SET candidate_image = ? WHERE candidate_id = ?;";
     if (req.file) {
         uploadFile("Candidate_Images/", req, sql, (response) => {
             if (response.queryError) {
