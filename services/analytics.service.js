@@ -30,23 +30,29 @@ const getNbrOfRegisteredVoters = (req, res) => {
                                     if (rows[0]) {
                                         let elections = rows
 
-                                        previousElection.year = elections[elections.findIndex((election) => {
+                                        let previousElectionYearIndex = elections.findIndex((election) => {
                                             if (election.election_year === parseInt(req.query.year))
                                                 return true
                                             else return false
-                                        }) - 1].election_year;
+                                        }) - 1
 
-                                        let { sql, params } = checkRegisteredVotersFetching(previousElection, true);
+                                        if (previousElectionYearIndex < 0) res.status(statusCodes.notFound).json({ message: "No previous elections" });
 
-                                        db.query(sql, params,
-                                            (err, rows) => {
-                                                if (err) res.status(statusCodes.queryError).json({ error: err });
-                                                else {
-                                                    let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
+                                        else {
+                                            previousElection.year = elections[previousElectionYearIndex].election_year;
 
-                                                    res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
-                                                }
-                                            });
+                                            let { sql, params } = checkRegisteredVotersFetching(previousElection, true);
+
+                                            db.query(sql, params,
+                                                (err, rows) => {
+                                                    if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                    else {
+                                                        let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
+
+                                                        res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
+                                                    }
+                                                });
+                                        }
                                     }
                                     else res.status(statusCodes.notFound).json({ message: "No previous elections found" });
                                 }
