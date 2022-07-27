@@ -5,7 +5,6 @@ const { checkRegisteredVotersFetching, checkVotesFetching } = require('../utils/
 const getNbrOfRegisteredVoters = (req, res) => {
     let { year, round, type } = req.query
 
-    console.log(year, round, type);
     if (!year || !type || !round) {
         res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
     }
