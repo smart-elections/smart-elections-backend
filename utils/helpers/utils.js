@@ -63,7 +63,7 @@ const checkVotesFetching = (req, analytics) => {
     let params = []
 
     if (analytics) {
-        sql += `SELECT Count(*) AS nbr_of_voters FROM votes `
+        sql += `SELECT Count(*) AS NbrOfVoters FROM votes `
     }
     else {
         sql += `SELECT * FROM votes `
