@@ -152,15 +152,17 @@ const getElectionWinner = (req, res) => {
                                         if (rows[0]) {
                                             let electionWinner = rows[0]
 
-                                            db.query(`SELECT candidate_id, Count(*) as votes,  
-                                            count(*) * 100.0 / sum(count(*)) over() as percentage
-                                                 FROM votes 
+                                            db.query(`SELECT V.candidate_id, Count(*) as votes,  
+                                            count(*) * 100.0 / sum(count(*)) over() as percentage, 
+                                            candidate_image, CI.citizen_firstname, CI.citizen_lastname
+                                                 FROM votes AS V INNER JOIN candidates AS CA on V.candidate_id = CA.candidate_id 
+                                                 INNER JOIN citizens AS CI ON CA.citizen_ssn = CI.citizen_ssn
                                                  WHERE (election_year = ? AND election_type = ? AND election_round = ?)
                                                  GROUP BY candidate_id 
                                                  ORDER BY percentage DESC ;`, [year, round, type],
                                                 (err, rows) => {
                                                     if (err) res.status(statusCodes.queryError).json({ error: err });
-                                                    else res.status(statusCodes.success).json({ winner: electionWinner, percentage: rows[0].percentage })
+                                                    else res.status(statusCodes.success).json({ winner: electionWinner, percentage: rows[0].percentage, results: rows })
                                                 })
                                         }
                                         else res.status(statusCodes.notFound).json({ message: "No winner declared yet" })
