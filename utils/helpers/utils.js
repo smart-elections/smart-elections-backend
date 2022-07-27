@@ -36,7 +36,7 @@ const checkElectionsFetching = (req, candidates) => {
         election_end FROM elections AS E `
     }
 
-    if (req.year || req.round || req.type) {
+    if (req.year || req.round || req.type || req.end) {
         sql += 'WHERE TRUE'
 
         if (req.year !== undefined) {
@@ -51,10 +51,12 @@ const checkElectionsFetching = (req, candidates) => {
             sql += ` AND E.election_type = ?`
             params.push(req.type);
         }
+        if (req.end !== undefined) {
+            sql += ` AND election_end <= CURRENT_DATE`
+        }
     }
 
-    sql += 'ORDER BY election_end DESC;'
-
+    sql += ' ORDER BY election_end DESC;'
     return { sql, params }
 }
 
