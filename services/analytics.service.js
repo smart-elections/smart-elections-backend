@@ -36,7 +36,7 @@ const getNbrOfRegisteredVoters = (req, res) => {
                                             else return false
                                         }) - 1
 
-                                        if (previousElectionYearIndex < 0) res.status(statusCodes.notFound).json({ message: "No previous elections" });
+                                        if (previousElectionYearIndex < 0) res.status(statusCodes.notFound).json({ registered_voters: currentElection[0].registered_voters, lastElectionDifference: "No previous elections" });
 
                                         else {
                                             previousElection.year = elections[previousElectionYearIndex].election_year;
@@ -49,7 +49,7 @@ const getNbrOfRegisteredVoters = (req, res) => {
                                                     else {
                                                         let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
 
-                                                        res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
+                                                        res.status(statusCodes.success).json({ registered_voters: currentElection[0].registered_voters, lastElectionDifference: changePercentage });
                                                     }
                                                 });
                                         }
