@@ -1,5 +1,7 @@
 const db = require('../database');
 const statusCodes = require('../utils/constants/statusCodes');
+const AWS = require('aws-sdk');
+const uploadFile = require('../upload/UploadFile');
 
 const getCandidates = (req, res) => {
     let { id } = req.query
@@ -35,38 +37,56 @@ const addCandidate = (req, res) => {
         res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
     }
     else {
-        db.query(`SELECT * FROM (SELECT citizen_ssn, citizen_nationality FROM election_candidate LEFT JOIN candidates on 
-        election_candidate.candidate_id = candidates.candidate_id 
-        WHERE election_year = ? AND election_round = ? AND 
-        election_type = ?) as election_candidates WHERE citizen_ssn = ? AND citizen_nationality = ?;`,
-            [body.election_year, body.election_round, body.election_type, body.citizen_ssn, body.citizen_nationality],
+        db.query(`SELECT citizen_id FROM citizens WHERE (citizen_ssn = ? AND citizen_nationality = ?);`, [body.citizen_ssn, body.citizen_nationality],
             (err, rows) => {
                 if (err) res.status(statusCodes.queryError).json({ error: err });
                 else {
                     if (rows[0]) {
-                        res.status(statusCodes.fieldAlreadyExists).json({ message: "Candidate already registered for this election" })
-                    }
-                    else {
-                        db.query(`INSERT INTO candidates (citizen_ssn, citizen_nationality, candidate_party, 
-                            candidate_election_status) values (?,?,?,?);`, [body.citizen_ssn, body.citizen_nationality, body.candidate_party,
-                        body.candidate_election_status],
+                        db.query(`SELECT election_id FROM elections WHERE (election_year = ? AND election_type =? AND election_round = ?);`,
+                            [body.election_year, body.election_type, body.election_round],
                             (err, rows) => {
                                 if (err) res.status(statusCodes.queryError).json({ error: err });
                                 else {
-                                    let id = rows.insertId
+                                    if (rows[0]) {
+                                        db.query(`SELECT * FROM (SELECT citizen_ssn, citizen_nationality FROM election_candidate LEFT JOIN candidates on 
+                                        election_candidate.candidate_id = candidates.candidate_id 
+                                        WHERE election_year = ? AND election_round = ? AND 
+                                        election_type = ?) as election_candidates WHERE citizen_ssn = ? AND citizen_nationality = ?;`,
+                                            [body.election_year, body.election_round, body.election_type, body.citizen_ssn, body.citizen_nationality],
+                                            (err, rows) => {
+                                                if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                else {
+                                                    if (rows[0]) {
+                                                        res.status(statusCodes.fieldAlreadyExists).json({ message: "Candidate already registered for this election" })
+                                                    }
+                                                    else {
+                                                        db.query(`INSERT INTO candidates (citizen_ssn, citizen_nationality, candidate_party, 
+                                                            candidate_election_status) values (?,?,?,?);`, [body.citizen_ssn, body.citizen_nationality, body.candidate_party,
+                                                        body.candidate_election_status],
+                                                            (err, rows) => {
+                                                                if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                                else {
+                                                                    let id = rows.insertId
 
-                                    db.query(`INSERT INTO election_candidate (candidate_id, election_year, election_round, election_type)
-                                    values (?,?,?,?);`, [id, body.election_year, body.election_round, body.election_type],
-                                        (err, rows) => {
-                                            if (err) res.status(statusCodes.queryError).json({ error: err });
-                                            else res.status(statusCodes.success).json({ message: "Candidate added successfully", data: rows })
-                                        })
+                                                                    db.query(`INSERT INTO election_candidate (candidate_id, election_year, election_round, election_type)
+                                                                    values (?,?,?,?);`, [id, body.election_year, body.election_round, body.election_type],
+                                                                        (err, rows) => {
+                                                                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                                                                            else res.status(statusCodes.success).json({ message: "Candidate added successfully", candidateID: id })
+                                                                        });
+                                                                }
+                                                            });
+                                                    }
+                                                }
+                                            });
+                                    }
+                                    else res.status(statusCodes.notFound).json({ message: "Election doesn't exist" });
                                 }
-                            })
+                            });
                     }
+                    else res.status(statusCodes.notFound).json({ message: "Citizen doesn't exist" });
                 }
-            })
-
+            });
     }
 }
 
@@ -90,8 +110,30 @@ const updateCandidate = (req, res) => {
         });
 }
 
+const uploadCandidateImage = (req, res) => {
+    var sql = "UPDATE candidate SET candidate_image = ? WHERE candidate_id = ?;";
+    if (req.file) {
+        uploadFile("Candidate_Images/", req, sql, (response) => {
+            if (response.queryError) {
+                res.status(statusCodes.queryError).json({
+                    error: response.queryError,
+                });
+            } else {
+                res.status(statusCodes.success).json({
+                    response,
+                });
+            }
+        });
+    } else {
+        res.status(statusCodes.missingParameters).json({
+            message: "File missing",
+        });
+    }
+};
+
 module.exports = {
     getCandidates,
     addCandidate,
-    updateCandidate
+    updateCandidate,
+    uploadCandidateImage
 }
