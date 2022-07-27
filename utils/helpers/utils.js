@@ -53,7 +53,7 @@ const checkElectionsFetching = (req, candidates) => {
         }
     }
 
-    sql += ';'
+    sql += 'ORDER BY election_end DESC;'
 
     return { sql, params }
 }
