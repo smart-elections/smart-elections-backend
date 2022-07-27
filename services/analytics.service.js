@@ -3,56 +3,70 @@ const statusCodes = require('../utils/constants/statusCodes');
 const { checkRegisteredVotersFetching, checkVotesFetching } = require('../utils/helpers/utils');
 
 const getNbrOfRegisteredVoters = (req, res) => {
-    let { sql, params } = checkRegisteredVotersFetching(req.query, true);
+    let { year, round, type } = req.query
 
-    db.query(sql, params,
-        (err, rows) => {
-            if (err) res.status(statusCodes.queryError).json({ error: err });
-            else {
-                let currentElection = rows;
-                let previousElection = {
-                    type: req.query.type,
-                    round: req.query.round
+    if (!year || !type || !round) {
+        res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
+    }
+    else {
+        let { sql, params } = checkRegisteredVotersFetching(req.query, true);
+
+        db.query(sql, params,
+            (err, rows) => {
+                if (err) res.status(statusCodes.queryError).json({ error: err });
+                else {
+                    let currentElection = rows;
+                    let previousElection = {
+                        type: req.query.type,
+                        round: req.query.round
+                    }
+
+                    db.query(`SELECT election_year FROM elections WHERE (election_type = ? AND election_round = ?) ORDER BY election_year ASC;`,
+                        [req.query.type, req.query.round],
+                        (err, rows) => {
+                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                            else {
+                                let elections = rows
+
+                                previousElection.year = elections[elections.findIndex((election) => {
+                                    if (election.election_year === parseInt(req.query.year))
+                                        return true
+                                    else return false
+                                }) - 1].election_year;
+
+                                let { sql, params } = checkRegisteredVotersFetching(previousElection, true);
+
+
+                                db.query(sql, params,
+                                    (err, rows) => {
+                                        if (err) res.status(statusCodes.queryError).json({ error: err });
+                                        else {
+                                            let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
+
+                                            res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
+                                        }
+                                    });
+                            }
+                        })
                 }
-
-                db.query(`SELECT election_year FROM elections WHERE (election_type = ? AND election_round = ?) ORDER BY election_year ASC;`,
-                    [req.query.type, req.query.round],
-                    (err, rows) => {
-                        if (err) res.status(statusCodes.queryError).json({ error: err });
-                        else {
-                            let elections = rows
-
-                            previousElection.year = elections[elections.findIndex((election) => {
-                                if (election.election_year === parseInt(req.query.year))
-                                    return true
-                                else return false
-                            }) - 1].election_year;
-
-                            let { sql, params } = checkRegisteredVotersFetching(previousElection, true);
-
-
-                            db.query(sql, params,
-                                (err, rows) => {
-                                    if (err) res.status(statusCodes.queryError).json({ error: err });
-                                    else {
-                                        let changePercentage = Math.round((currentElection[0].registered_voters * 100 / rows[0].registered_voters - 100) * 100) / 100;
-
-                                        res.status(statusCodes.success).json({ currentElection: currentElection, lastElectionDifference: changePercentage });
-                                    }
-                                });
-                        }
-                    })
-            }
-        })
+            });
+    }
 }
 
 const getNbrOfVoters = (req, res) => {
-    let { sql, params } = checkVotesFetching(req.query, true);
+    let { year, round, type } = req.query
 
-    db.query(sql, params, (err, rows) => {
-        if (err) res.status(statusCodes.queryError).json({ error: err });
-        else res.status(statusCodes.success).json({ data: rows });
-    });
+    if (!year || !type || !round) {
+        res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
+    }
+    else {
+        let { sql, params } = checkVotesFetching(req.query, true);
+
+        db.query(sql, params, (err, rows) => {
+            if (err) res.status(statusCodes.queryError).json({ error: err });
+            else res.status(statusCodes.success).json({ data: rows });
+        });
+    }
 }
 
 const getElectionWinner = (req, res) => {
@@ -85,6 +99,10 @@ const getElectionWinner = (req, res) => {
                 }
             })
     }
+}
+
+const getWinnerVotes = (req, res) => {
+
 }
 
 module.exports = {
