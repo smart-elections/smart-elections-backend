@@ -159,7 +159,7 @@ const getElectionWinner = (req, res) => {
                                                  INNER JOIN citizens AS CI ON CA.citizen_ssn = CI.citizen_ssn
                                                  WHERE (election_year = ? AND election_type = ? AND election_round = ?)
                                                  GROUP BY candidate_id 
-                                                 ORDER BY percentage DESC ;`, [year, round, type],
+                                                 ORDER BY percentage DESC LIMIT 5;`, [year, round, type],
                                                 (err, rows) => {
                                                     if (err) res.status(statusCodes.queryError).json({ error: err });
                                                     else res.status(statusCodes.success).json({ winner: electionWinner, percentage: rows[0].percentage, results: rows })
