@@ -105,13 +105,12 @@ const getElectionWinner = (req, res) => {
                                         if (rows[0]) {
                                             let electionWinner = rows[0]
 
-                                            db.query(`SELECT candidate_id, Count(*) as votes,  ROUND(
-                                                count(*) * 100.0 / (select count(*) FROM votes),
-                                                 2) as percentage 
+                                            db.query(`SELECT candidate_id, Count(*) as votes,  
+                                            count(*) * 100.0 / sum(count(*)) over() as percentage
                                                  FROM votes 
                                                  WHERE (election_year = ? AND election_type = ? AND election_round = ?)
                                                  GROUP BY candidate_id 
-                                                 With rollup ORDER BY percentage DESC ;`, [year, round, type],
+                                                 ORDER BY percentage DESC ;`, [year, round, type],
                                                 (err, rows) => {
                                                     if (err) res.status(statusCodes.queryError).json({ error: err });
                                                     else res.status(statusCodes.success).json({ winner: electionWinner, percentage: rows[0].percentage })
