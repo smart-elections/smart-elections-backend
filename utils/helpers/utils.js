@@ -69,7 +69,7 @@ const checkVotesFetching = (req, analytics) => {
         sql += `SELECT * FROM votes `
     }
 
-    if (req.year || req.round || req.type || req.ssn || req.nationality) {
+    if (req.year || req.round || req.type || req.ssn || req.nationality || req.candidate_id) {
         sql += 'WHERE TRUE'
 
         if (req.year !== undefined) {
@@ -91,6 +91,10 @@ const checkVotesFetching = (req, analytics) => {
         if (req.nationality !== undefined) {
             sql += ` AND citizen_nationality = ?`
             params.push(req.nationality);
+        }
+        if (req.candidate_id !== undefined) {
+            sql += ` AND candidate_id = ?`
+            params.push(req.candidate_id);
         }
     }
 
