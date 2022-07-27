@@ -53,12 +53,11 @@ const editElection = (req, res) => {
         if (!body.election_start && !body.election_end) res.status(statusCodes.missingParameters).json({ message: "Missing parameters" });
         else {
             db.query(`SELECT election_id FROM elections WHERE election_year = ? AND election_type = ? 
-            AND election_round = ? AND election_start = ? AND election_end = ?;`, [year, type, round, body.election_start, body.election_end],
+            AND election_round = ?;`, [year, type, round],
                 (err, rows) => {
                     if (err) res.status(statusCodes.queryError).json({ error: err });
                     else {
-                        if (rows[0]) res.status(statusCodes.fieldAlreadyExists).json({ message: "Election already exists" });
-                        else {
+                        if (rows[0]) {
                             db.query('UPDATE elections SET ? WHERE election_year = ? AND election_type = ? AND election_round = ?;', [body, year,
                                 type, round],
                                 (err, rows) => {
@@ -66,6 +65,7 @@ const editElection = (req, res) => {
                                     else res.status(statusCodes.success).json({ message: "Election updated successfully" });
                                 })
                         }
+                        else res.status(statusCodes.fieldAlreadyExists).json({ message: "Election doesn't exist" });
                     }
                 })
         }

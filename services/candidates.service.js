@@ -74,10 +74,19 @@ const updateCandidate = (req, res) => {
     let body = req.body
     let { id } = req.query
 
-    db.query(`UPDATE candidates SET ? WHERE candidate_id = ?;`, [body, id],
+    db.query(`SELECT citizen_ssn FROM candidates WHERE candidate_id = ?;`, id,
         (err, rows) => {
             if (err) res.status(statusCodes.queryError).json({ error: err });
-            else res.status(statusCodes.success).json({ message: "Candidate updated successfully" });
+            else {
+                if (rows[0]) {
+                    db.query(`UPDATE candidates SET ? WHERE candidate_id = ?;`, [body, id],
+                        (err, rows) => {
+                            if (err) res.status(statusCodes.queryError).json({ error: err });
+                            else res.status(statusCodes.success).json({ message: "Candidate updated successfully" });
+                        });
+                }
+                else res.status(statusCodes.notFound).json({ message: "Candidate doesn't exist" });
+            }
         });
 }
 
