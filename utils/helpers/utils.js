@@ -158,6 +158,7 @@ const checkRegisteredVotersFetching = (req, analytics) => {
     if (req.year || req.round || req.type || req.ssn || req.nationality) {
         sql += 'WHERE TRUE'
 
+        console.log(req)
         if (req.year !== undefined) {
             sql += ` AND election_year = ?`
             params.push(req.year);
