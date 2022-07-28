@@ -113,17 +113,23 @@ const updateCandidate = (req, res) => {
 const uploadCandidateImage = (req, res) => {
     var sql = "UPDATE candidates SET candidate_image = ? WHERE candidate_id = ?;";
     if (req.file) {
-        uploadFile("Candidate_Images/", req, sql, (response) => {
-            if (response.queryError) {
-                res.status(statusCodes.queryError).json({
-                    error: response.queryError,
-                });
-            } else {
-                res.status(statusCodes.success).json({
-                    response,
-                });
-            }
-        });
+        let { mimetype } = req.file
+        if (mimetype !== 'image/jpeg' && mimetype !== 'image/png' && mimetype !== 'image/jpg') {
+            res.status(statusCodes.missingParameters).json({ message: "Please only upload images" });
+        }
+        else {
+            uploadFile("Candidate_Images/", req, sql, (response) => {
+                if (response.queryError) {
+                    res.status(statusCodes.queryError).json({
+                        error: response.queryError,
+                    });
+                } else {
+                    res.status(statusCodes.success).json({
+                        response,
+                    });
+                }
+            });
+        }
     } else {
         res.status(statusCodes.missingParameters).json({
             message: "File missing",
