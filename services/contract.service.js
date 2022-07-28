@@ -3,7 +3,7 @@ const Web3 = require('web3');
 const getCurrentGasPrices = require('../utils/helpers/eth-utils');
 const EthereumTx = require('ethereumjs-tx').Transaction
 const ansi = require('ansicolor').nice
-const web3 = new Web3(new Web3.providers.HttpProvider(process.env.Testnet));
+const web3 = new Web3(new Web3.providers.HttpProvider(`https://goerli.infura.io/v3/${process.env.TESTNET_KEY})`);
 const statusCodes = require('../utils/constants/statusCodes');
 const db = require('../database');
 
