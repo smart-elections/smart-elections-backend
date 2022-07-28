@@ -2,7 +2,7 @@ const AWS = require("aws-sdk");
 
 // Enter copied or downloaded access ID and secret key here
 const ID = process.env.AWS_ID;
-const SECRET = process.env.SECRET_KEY;
+const SECRET = "NpCzmvj+Q/4HxmOCgM/aClcoiZFmmgWE4kHDEbSi";
 
 // Initializing S3 Interface
 const s3 = new AWS.S3({
