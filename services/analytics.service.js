@@ -153,7 +153,7 @@ const getElectionWinner = (req, res) => {
                                             let electionWinner = rows[0]
 
                                             db.query(`SELECT V.candidate_id, Count(*) as votes,  
-                                            count(*) * 100.0 / sum(count(*)) over() as percentage, 
+                                            ROUND(count(*) * 100.0 / sum(count(*)) over(), 2) as percentage, 
                                             candidate_image, CI.citizen_firstname, CI.citizen_lastname
                                                  FROM votes AS V INNER JOIN candidates AS CA on V.candidate_id = CA.candidate_id 
                                                  INNER JOIN citizens AS CI ON CA.citizen_ssn = CI.citizen_ssn
