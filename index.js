@@ -25,6 +25,7 @@ const electionsRoutes = require('./routes/elections.routes');
 const votesRoutes = require('./routes/votes.routes');
 const registeredVotersRoutes = require('./routes/registered-voters.routes');
 const analyticsRoutes = require('./routes/analytics.routes');
+const contractRoutes = require('./routes/contract.routes');
 
 app.use('/citizens', citizensRoutes);
 app.use('/accounts', accountsRoutes);
@@ -33,6 +34,7 @@ app.use('/elections', electionsRoutes);
 app.use('/votes', votesRoutes);
 app.use('/voters', registeredVotersRoutes);
 app.use('/analytics', analyticsRoutes);
+app.use('/contract', contractRoutes);
 
 app.get("/", function (req, res) {
     res.send("Hello World!")
